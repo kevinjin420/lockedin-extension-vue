@@ -1,6 +1,6 @@
-import './assets/main.css'
+import './dashboard.css'
 
 import { createApp } from 'vue'
-import App from './App.vue'
+import dashboardConfig from './dashboard-config.vue'
 
-createApp(App).mount('#app')
+createApp(dashboardConfig).mount('#app')

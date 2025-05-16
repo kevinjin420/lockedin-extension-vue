@@ -11,16 +11,20 @@ export default defineConfig({
     vue(),
     vueDevTools(),
     viteStaticCopy({
-     targets: [
-       {
-         src: 'scripts/background.js',
-         dest: 'scripts',
-       },
-       {
-         src: 'index.html',
-         dest: ''
-       }
-     ],
+      targets: [
+        {
+          src: 'src/scripts/background.js',
+          dest: 'background',
+        },
+        {
+          src: 'popup.html',
+          dest: '',
+        },
+        {
+          src: 'dashboard.html',
+          dest: '',
+        },
+      ],
    })
   ],
   resolve: {
@@ -31,19 +35,22 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        content: '/src/main.js', // Build `main.js` as the content script
-        background: 'scripts/background.js', // Add `background.js` as another entry point
+        popup: 'src/popup/popup.js',
+        dashboard: 'src/dashboard/dashboard.js', // Build `main.js` as the content script
+        background: 'src/scripts/background.js', // Add `background.js` as another entry point
       },
       output: {
         entryFileNames: (chunkInfo) => {
-          // Dynamically name files based on their entry point
-          if (chunkInfo.name === 'content') {
-            return 'main.js'; // Output content script as `main.js`
+          if (chunkInfo.name === 'popup') {
+            return 'src/popup/popup.js';
+          }
+          if (chunkInfo.name === 'dashboard') {
+            return 'src/dashboard/dashboard.js';
           }
           if (chunkInfo.name === 'background') {
-            return 'scripts/background.js'; // Output background script into `background/`
+            return 'scripts/background.js';
           }
-          // return '[name].js'; // Default naming for other files
+          return '[name].js'; // Fallback for any other files
         },
       },
       commonjsOptions: {
