@@ -57,7 +57,7 @@ export default defineConfig({
         include: [/node_modules/], // Include dependencies in the bundle
         format: 'iife',
       },
-      external: []
+      external: ['vue']
     },
   },
 
