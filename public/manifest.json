@@ -1,0 +1,20 @@
+{
+	"name": "LockedIn Site Blocker",
+	"description": "Blocked distracting sites",
+	"version": "1.0",
+	"manifest_version": 3,
+	"action": {
+		"default_popup": "/popup/popup.html",
+		"default_icon": "icon.png"
+	},
+	"content_scripts": [
+	{
+		"js": ["scripts/background.js"],
+    	"matches": ["<all_urls>"]
+	}
+	],
+	"permissions": [
+		"tabs",
+		"webRequest"
+	]
+}
