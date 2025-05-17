@@ -5,25 +5,33 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
+import { crx } from '@crxjs/vite-plugin'
+import manifest from './public/manifest.json' assert { type: 'json' }
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     vueDevTools(),
+    crx({ manifest }),
     viteStaticCopy({
       targets: [
-        {
-          src: 'src/scripts/background.js',
-          dest: 'background',
-        },
-        {
-          src: 'popup.html',
-          dest: '',
-        },
-        {
-          src: 'dashboard.html',
-          dest: '',
-        },
+        // {
+        //   src: 'src/scripts/background.js',
+        //   dest: 'background',
+        // },
+        // {
+        //   src: 'popup.html',
+        //   dest: '',
+        // },
+        // {
+        //   src: 'dashboard.html',
+        //   dest: '',
+        // },
+        // {
+        //   src: 'src/icons',
+        //   dest: '',
+        // },
       ],
    })
   ],
@@ -35,9 +43,12 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        popup: 'src/popup/popup.js',
-        dashboard: 'src/dashboard/dashboard.js', // Build `main.js` as the content script
-        background: 'src/scripts/background.js', // Add `background.js` as another entry point
+        // popup: 'src/popup/popup.js',
+        // dashboard: 'src/dashboard/dashboard.js',
+        background: 'src/scripts/background.js',
+        popup: 'src/popup/popup.html',
+        dashboard: 'src/dashboard/dashboard.html',
+
       },
       output: {
         entryFileNames: (chunkInfo) => {
@@ -57,7 +68,7 @@ export default defineConfig({
         include: [/node_modules/], // Include dependencies in the bundle
         format: 'iife',
       },
-      external: ['vue']
+      external: []
     },
   },
 

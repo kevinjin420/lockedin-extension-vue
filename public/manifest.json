@@ -3,18 +3,25 @@
 	"description": "Blocked distracting sites",
 	"version": "1.0",
 	"manifest_version": 3,
+  	"options_page": "src/dashboard/dashboard.html",
 	"action": {
-		"default_popup": "popup.html",
+		"default_popup": "src/popup/popup.html",
 		"default_icon": "icon.png"
 	},
 	"content_scripts": [
 	{
-		"js": ["scripts/background.js"],
+		"js": ["src/scripts/background.js"],
     	"matches": ["<all_urls>"]
 	}
 	],
 	"permissions": [
 		"tabs",
 		"webRequest"
+	],
+	"web_accessible_resources": [
+		{
+			"resources": [ "icons/*.png"],
+			"matches": []
+		}
 	]
 }
