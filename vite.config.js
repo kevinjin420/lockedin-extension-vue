@@ -16,22 +16,10 @@ export default defineConfig({
     crx({ manifest }),
     viteStaticCopy({
       targets: [
-        // {
-        //   src: 'src/scripts/background.js',
-        //   dest: 'background',
-        // },
-        // {
-        //   src: 'popup.html',
-        //   dest: '',
-        // },
-        // {
-        //   src: 'dashboard.html',
-        //   dest: '',
-        // },
-        // {
-        //   src: 'src/icons',
-        //   dest: '',
-        // },
+        {
+          src: 'node_modules/bootstrap-icons/font/fonts/*',
+          dest: 'fonts'
+        }
       ],
    })
   ],

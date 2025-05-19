@@ -6,7 +6,13 @@
   	"options_page": "src/dashboard/dashboard.html",
 	"action": {
 		"default_popup": "src/popup/popup.html",
-		"default_icon": "icon.png"
+		"default_icon": "logo-transparent.png"
+	},
+	"icons": {
+		"16": "logo-16.png",
+		"32": "logo-32.png",
+		"48": "logo-48.png",
+		"128": "logo-128.png"
 	},
 	"content_scripts": [
 	{
@@ -14,14 +20,12 @@
     	"matches": ["<all_urls>"]
 	}
 	],
+	"background": {
+		"service_worker": "src/scripts/background.js"
+	},
 	"permissions": [
 		"tabs",
-		"webRequest"
-	],
-	"web_accessible_resources": [
-		{
-			"resources": [ "icons/*.png"],
-			"matches": []
-		}
+		"webRequest",
+		"storage"
 	]
 }
