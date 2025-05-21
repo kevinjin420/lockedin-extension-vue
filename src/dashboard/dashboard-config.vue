@@ -9,26 +9,22 @@
     const websites = ref([]);
     const urlInput = ref(null);
 
-    // Apply theme on DOM
     function applyTheme(dark) {
         const root = document.documentElement;
         root.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
     }
 
-    // Toggle dark/light mode
     function toggleTheme() {
         isDarkMode.value = !isDarkMode.value;
         chrome.storage.local.set({ isDarkMode: isDarkMode.value });
         applyTheme(isDarkMode.value);
     }
 
-    // Toggle isEnabled switch
     function toggleEnabled() {
         isEnabled.value = !isEnabled.value;
         chrome.storage.local.set({ isEnabled: isEnabled.value });
     }
 
-    // Sync changes across pages
     function handleStorageChange(changes, areaName) {
         if (areaName !== 'local') return;
 
@@ -43,10 +39,12 @@
 
     // Load from storage
     onMounted(() => {
-        chrome.storage.local.get(['isDarkMode', 'isEnabled'], (result) => {
+        chrome.storage.local.get(['isDarkMode', 'isEnabled', 'websites'], (result) => {
             isDarkMode.value = result.isDarkMode ?? true;
             isEnabled.value = result.isEnabled ?? true;
+            websites.value = JSON.parse(result.websites);
             applyTheme(isDarkMode.value);
+            console.log("loaded");
         });
 
         chrome.storage.onChanged.addListener(handleStorageChange);
@@ -57,13 +55,17 @@
         chrome.storage.onChanged.removeListener(handleStorageChange);
     });
 
+    function syncWebsites() {
+        // chrome.storage.local.set({ websites: websites.value });
+        chrome.storage.local.set({ websites: JSON.stringify(websites.value) });
+    }
+
     function handleSubmit() {
         const trimmed = url.value.trim();
         if (trimmed) {
             websites.value.push(trimmed);
             url.value = '';
-
-            // Keep focus on the input
+            syncWebsites();
             nextTick(() => {
                 urlInput.value?.focus();
             });
@@ -72,6 +74,8 @@
 
     function removeSite(index) {
         websites.value.splice(index, 1);
+        console.log("del");
+        syncWebsites();
     }
 </script>
 
@@ -126,7 +130,6 @@
                         :key="index"
                         class="list-group-item d-flex align-items-center gap-3"
                         >
-                            <!-- Left: Icon bubble -->
                             <div class="icon-bubble">
                                 <img
                                 :src="`https://www.google.com/s2/favicons?domain=${site}&sz=32`"
@@ -135,12 +138,10 @@
                                 />
                             </div>
 
-                            <!-- Center: Site URL -->
                             <div class="site-url text-start flex-grow-1">
                                 {{ site }}
                             </div>
 
-                            <!-- Right: Delete bubble -->
                             <button
                                 class="icon-bubble btn btn-outline-danger p-0"
                                 @click="removeSite(index)"
@@ -222,7 +223,7 @@
 }
 
 [data-bs-theme='dark'] .toggle-label.active {
-    color: #fff;
+    color: #ff0000;
 }
 
 .custom-switch:focus {
