@@ -14,18 +14,20 @@
 		"48": "logo-48.png",
 		"128": "logo-128.png"
 	},
-	"content_scripts": [
-	{
-		"js": ["src/scripts/background.js"],
-    	"matches": ["<all_urls>"]
-	}
-	],
 	"background": {
 		"service_worker": "src/scripts/background.js"
 	},
+	"host_permissions": ["<all_urls>"],
 	"permissions": [
 		"tabs",
 		"webRequest",
+		"declarativeNetRequest",
 		"storage"
+	],
+	"web_accessible_resources": [
+		{
+			"resources": ["src/block/block.html"],
+			"matches": ["<all_urls>"]
+		}
 	]
 }

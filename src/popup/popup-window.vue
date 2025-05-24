@@ -6,26 +6,24 @@
     const isDarkMode = ref(true);
     const isEnabled = ref(true);
 
-    // storage load
     onMounted(() => {
         if (chrome?.storage?.local) {
-            chrome.storage.local.get(['isDarkMode', 'extensionEnabled'], (result) => {
+            chrome.storage.local.get(['isDarkMode', 'isEnabled'], (result) => {
                 isDarkMode.value = result.isDarkMode ?? true;
-                isEnabled.value = result.extensionEnabled ?? true;
+                isEnabled.value = result.isEnabled ?? true;
 
                 chrome.storage.local.set({
                     isDarkMode: isDarkMode.value,
-                    extensionEnabled: isEnabled.value
+                    isEnabled: isEnabled.value
                 });
 
                 applyTheme(isDarkMode.value);
             });
         } else {
-            console.error("missing storage permissions");
+            console.error("chrome storage inaccessible");
         }
     });
 
-    // bootstrap theme
     function applyTheme(dark) {
         const root = document.documentElement;
         if (dark) {
@@ -43,7 +41,7 @@
 
     function toggleFunction() {
         isEnabled.value = !isEnabled.value;
-        chrome.storage.local.set({ extensionEnabled: isEnabled.value });
+        chrome.storage.local.set({ isEnabled: isEnabled.value });
     }
 </script>
 
@@ -80,7 +78,6 @@
             openDashboard() {
                 const url = chrome.runtime.getURL('src/dashboard/dashboard.html');
                 chrome.tabs.create({ url });
-                console.log("open");
             }
         }
     }

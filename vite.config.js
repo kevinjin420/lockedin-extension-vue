@@ -31,12 +31,10 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        // popup: 'src/popup/popup.js',
-        // dashboard: 'src/dashboard/dashboard.js',
         background: 'src/scripts/background.js',
         popup: 'src/popup/popup.html',
         dashboard: 'src/dashboard/dashboard.html',
-
+        block: 'src/block/block.html',
       },
       output: {
         entryFileNames: (chunkInfo) => {
@@ -49,11 +47,14 @@ export default defineConfig({
           if (chunkInfo.name === 'background') {
             return 'scripts/background.js';
           }
-          return '[name].js'; // Fallback for any other files
+          if (chunkInfo.name === 'block'){
+            return 'src/block/block.js';
+          }
+          return '[name].js';
         },
       },
       commonjsOptions: {
-        include: [/node_modules/], // Include dependencies in the bundle
+        include: [/node_modules/],
         format: 'iife',
       },
       external: []

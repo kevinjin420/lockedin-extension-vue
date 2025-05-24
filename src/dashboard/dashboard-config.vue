@@ -37,14 +37,12 @@
         }
     }
 
-    // Load from storage
     onMounted(() => {
         chrome.storage.local.get(['isDarkMode', 'isEnabled', 'websites'], (result) => {
             isDarkMode.value = result.isDarkMode ?? true;
             isEnabled.value = result.isEnabled ?? true;
             websites.value = JSON.parse(result.websites);
             applyTheme(isDarkMode.value);
-            console.log("loaded");
         });
 
         chrome.storage.onChanged.addListener(handleStorageChange);
@@ -56,7 +54,6 @@
     });
 
     function syncWebsites() {
-        // chrome.storage.local.set({ websites: websites.value });
         chrome.storage.local.set({ websites: JSON.stringify(websites.value) });
     }
 
@@ -74,7 +71,6 @@
 
     function removeSite(index) {
         websites.value.splice(index, 1);
-        console.log("del");
         syncWebsites();
     }
 </script>
@@ -163,12 +159,12 @@
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    background-color: #f8f9fa; /* light gray background */
+    background-color: #f8f9fa;
     padding: 2rem;
 }
 
 .dashboard-page-container {
-    background-color: #ffffff; /* white center block (light mode) */
+    background-color: #ffffff;
     padding: 2rem;
     width: 100%;
     min-width: 300px;
