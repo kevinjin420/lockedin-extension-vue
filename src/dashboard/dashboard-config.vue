@@ -40,11 +40,11 @@
     onMounted(() => {
         chrome.storage.local.get(['isDarkMode', 'isEnabled', 'websites'], (result) => {
             isDarkMode.value = result.isDarkMode ?? true;
+            applyTheme(isDarkMode.value);
             isEnabled.value = result.isEnabled ?? true;
             websites.value = JSON.parse(result.websites);
-            applyTheme(isDarkMode.value);
         });
-
+        
         chrome.storage.onChanged.addListener(handleStorageChange);
         nextTick(() => urlInput.value?.focus());
     });
