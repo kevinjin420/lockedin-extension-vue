@@ -42,7 +42,7 @@
             isDarkMode.value = result.isDarkMode ?? true;
             applyTheme(isDarkMode.value);
             isEnabled.value = result.isEnabled ?? true;
-            websites.value = JSON.parse(result.websites);
+            websites.value = JSON.parse(result.websites); // sometimes throws errors (on initial install??)
         });
         
         chrome.storage.onChanged.addListener(handleStorageChange);

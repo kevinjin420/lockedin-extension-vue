@@ -1,29 +1,7 @@
 <script setup>
-    import { ref, onMounted } from 'vue';
     import 'bootstrap/dist/css/bootstrap.min.css';
     import 'bootstrap-icons/font/bootstrap-icons.css';
-
-    const isDarkMode = ref(true);
-
-    function applyTheme(dark) {
-        const root = document.documentElement;
-        root.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
-    }
-
-    onMounted(() => {
-        chrome.storage.local.get(['isDarkMode'], (result) => {
-            isDarkMode.value = result.isDarkMode ?? true;
-            applyTheme(isDarkMode.value);
-        });
-    });
-    
-    chrome.storage.onChanged.addListener((changes, namespace) => {
-        if (namespace === 'local' && changes.isDarkMode) {
-            isDarkMode.value = changes.isDarkMode.newValue;
-            applyTheme(isDarkMode.value);
-        }
-    });
-
+    console.log("mount complete")
 </script>
 
 

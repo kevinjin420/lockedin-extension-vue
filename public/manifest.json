@@ -21,8 +21,15 @@
 	"permissions": ["declarativeNetRequest", "storage"],
 	"web_accessible_resources": [
 		{
-			"resources": ["src/block/block.html"],
+			"resources": ["src/block/block.html", "src/block/block.js", "assets/*"],
 			"matches": ["<all_urls>"]
+		}
+	],
+	"content_scripts": [
+		{
+			"matches": ["<all_urls>"],
+			"js": ["src/scripts/content.js"],
+			"run_at": "document_start"
 		}
 	]
 }

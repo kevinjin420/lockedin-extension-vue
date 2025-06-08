@@ -32,6 +32,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         background: 'src/scripts/background.js',
+        content: 'src/scripts/content.js',
         popup: 'src/popup/popup.html',
         dashboard: 'src/dashboard/dashboard.html',
         block: 'src/block/block.html',
@@ -45,7 +46,10 @@ export default defineConfig({
             return 'src/dashboard/dashboard.js';
           }
           if (chunkInfo.name === 'background') {
-            return 'scripts/background.js';
+            return 'src/scripts/background.js';
+          }
+          if (chunkInfo.name === 'content') {
+            return 'src/scripts/content.js';
           }
           if (chunkInfo.name === 'block'){
             return 'src/block/block.js';
