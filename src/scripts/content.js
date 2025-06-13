@@ -30,9 +30,6 @@ function blockPage() {
                 height: 100vh;
             }
         </style>
-        <script>
-            window.__BLOCK_CONFIG__ = ${JSON.stringify(config)};
-        </script>
     </head>
     <body>
         <div id="vue-block-overlay"></div>
