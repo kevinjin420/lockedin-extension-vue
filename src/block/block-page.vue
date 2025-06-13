@@ -1,7 +1,6 @@
 <script setup>
     import 'bootstrap/dist/css/bootstrap.min.css';
     import 'bootstrap-icons/font/bootstrap-icons.css';
-    console.log("mount complete")
 </script>
 
 
@@ -14,7 +13,8 @@
 
 <style scoped>
 .block-page-wrapper {
-    min-height: 100vh;
+    height: 100vh;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: flex-start;

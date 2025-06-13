@@ -21,7 +21,7 @@
 	"permissions": ["declarativeNetRequest", "storage"],
 	"web_accessible_resources": [
 		{
-			"resources": ["src/block/block.html", "src/block/block.js", "assets/*"],
+			"resources": ["src/block/block.js", "src/block/block.css", "assets/*"],
 			"matches": ["<all_urls>"]
 		}
 	],

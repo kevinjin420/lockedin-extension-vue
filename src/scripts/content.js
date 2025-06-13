@@ -1,16 +1,3 @@
-//   const overlay = document.createElement('div');
-//   overlay.id = 'vue-block-overlay';
-//   document.body.appendChild(overlay);
-
-//   const script = document.createElement('script');
-//   script.src = chrome.runtime.getURL('src/block/block.js');
-//   script.type = 'module';
-//   console.log(script.src);
-//   document.body.appendChild(script);
-// too tedious, just bare html instead
-
-console.log('Content script loaded!');
-
 let isDarkMode = true;
 let isEnabled = true;
 let websites = [];
@@ -27,7 +14,7 @@ function blockPage() {
         <style>
             body {
                 margin: 0;
-                background-color: #111;
+                background-color: #ffffff;
                 color: white;
                 display: flex;
                 justify-content: center;
@@ -38,14 +25,49 @@ function blockPage() {
             h1 {
                 font-size: 3rem;
             }
+            #vue-block-overlay{
+                width: 100vw;
+                height: 100vh;
+            }
         </style>
+        <script>
+            window.__BLOCK_CONFIG__ = ${JSON.stringify(config)};
+        </script>
     </head>
     <body>
-        <h1>Blocked</h1>
+        <div id="vue-block-overlay"></div>
     </body>
     </html>
     `);
     document.close();
+    
+    const blockStyleLink = document.createElement('link');
+    blockStyleLink.rel = 'stylesheet';
+    blockStyleLink.type = 'text/css';
+    blockStyleLink.href = chrome.runtime.getURL('src/block/block.css');
+    document.head.appendChild(blockStyleLink);
+    
+    const blockScript = document.createElement('script');
+    blockScript.src = chrome.runtime.getURL('src/block/block.js');
+    document.body.appendChild(blockScript);
+    applyTheme(isDarkMode);
+}
+
+function unblockPage() {
+    const overlay = document.getElementById('vue-block-overlay');
+    if (!overlay) return;
+
+    const blockCssHref = chrome.runtime.getURL('src/block/block.css');
+    document.querySelectorAll(`link[href="${blockCssHref}"]`).forEach(link => link.remove());
+
+    const blockScriptSrc = chrome.runtime.getURL('src/block/block.js');
+    document.querySelectorAll(`script[src="${blockScriptSrc}"]`).forEach(script => script.remove());
+
+    overlay.remove();
+
+    document.documentElement.removeAttribute('data-bs-theme');
+
+    location.reload();
 }
 
 function applyTheme(dark) {
@@ -53,10 +75,23 @@ function applyTheme(dark) {
     root.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
 }
 
-function toggleTheme() {
-    isDarkMode = !isDarkMode;
-    chrome.storage.local.set({ isDarkMode });
-    applyTheme(isDarkMode);
+function shouldBlock(url) {
+    return websites.some(entry => {
+        try {
+            const entryUrl = new URL(entry);
+            return url === entry || url.startsWith(entry) || location.origin === entryUrl.origin;
+        } catch {
+            return url.includes(entry);
+        }
+    });
+}
+
+function applyBlock() {
+    if (isEnabled && shouldBlock(location.href)) {
+        blockPage();
+    } else {
+        unblockPage();
+    }
 }
 
 function handleStorageChange(changes, areaName) {
@@ -66,45 +101,40 @@ function handleStorageChange(changes, areaName) {
         isDarkMode = changes.isDarkMode.newValue;
         applyTheme(isDarkMode);
     }
+
     if (changes.isEnabled) {
         isEnabled = changes.isEnabled.newValue;
+        applyBlock();
     }
-}
 
-function shouldBlock(url) {
-    return websites.some(entry => {
+    if (changes.websites) {
         try {
-            // Match either full match or origin-only match
-            const entryUrl = new URL(entry);
-            return url === entry || url.startsWith(entry) || location.origin === entryUrl.origin;
+            websites = JSON.parse(changes.websites.newValue || '[]');
         } catch {
-            // fallback if entry isn't a valid URL
-            return url.includes(entry);
+            websites = [];
         }
-    });
+        applyBlock();
+    }
 }
 
 function init() {
     chrome.storage.local.get(['isDarkMode', 'isEnabled', 'websites'], (result) => {
         isDarkMode = result.isDarkMode ?? true;
-        applyTheme(isDarkMode);
-
         isEnabled = result.isEnabled ?? true;
 
         try {
             websites = JSON.parse(result.websites || '[]');
-        } catch (e) {
-            console.warn('Failed to parse websites:', result.websites);
+        } catch {
             websites = [];
         }
+
+        applyTheme(isDarkMode);
 
         if (urlInput) {
             urlInput.focus();
         }
 
-        if (isEnabled && shouldBlock(location.href)) {
-            blockPage();
-        }
+        applyBlock();
     });
 
     chrome.storage.onChanged.addListener(handleStorageChange);
@@ -114,6 +144,4 @@ window.addEventListener('beforeunload', () => {
     chrome.storage.onChanged.removeListener(handleStorageChange);
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    init();
-});
+init();

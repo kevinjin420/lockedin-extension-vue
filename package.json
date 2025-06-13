@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --mode block --outDir dist-block && cp dist-block/block.css src/block/block.css && vite build && cp dist-block/block.js dist/src/block/block.js && rm -rf dist-block && rm src/block/block.css",
     "preview": "vite preview",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
