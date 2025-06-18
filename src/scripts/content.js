@@ -4,39 +4,36 @@ let websites = [];
 let urlInput = null;
 
 function blockPage() {
-    document.open();
-    document.write(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Blocked</title>
-        <style>
-            body {
-                margin: 0;
-                background-color: #ffffff;
-                color: white;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                font-family: sans-serif;
-            }
-            h1 {
-                font-size: 3rem;
-            }
-            #vue-block-overlay{
-                width: 100vw;
-                height: 100vh;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="vue-block-overlay"></div>
-    </body>
-    </html>
-    `);
-    document.close();
+    document.documentElement.innerHTML = `
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Blocked</title>
+            <style>
+                body {
+                    margin: 0;
+                    background-color: #ffffff;
+                    color: white;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    font-family: sans-serif;
+                }
+                h1 {
+                    font-size: 3rem;
+                }
+                #vue-block-overlay{
+                    width: 100vw;
+                    height: 100vh;
+                }
+            </style>
+        </head>
+        <body>
+            <div id="vue-block-overlay"></div>
+        </body>
+        </html>
+    `;
     
     const blockStyleLink = document.createElement('link');
     blockStyleLink.rel = 'stylesheet';

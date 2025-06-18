@@ -63,7 +63,6 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         input: {
-          background: 'src/scripts/background.js',
           content: 'src/scripts/content.js',
           popup: 'src/popup/popup.html',
           dashboard: 'src/dashboard/dashboard.html',
@@ -72,7 +71,6 @@ export default defineConfig(({ mode }) => {
           entryFileNames: (chunkInfo) => {
             if (chunkInfo.name === 'popup') return 'src/popup/popup.js'
             if (chunkInfo.name === 'dashboard') return 'src/dashboard/dashboard.js'
-            if (chunkInfo.name === 'background') return 'src/scripts/background.js'
             if (chunkInfo.name === 'content') return 'src/scripts/content.js'
             return '[name].js'
           },

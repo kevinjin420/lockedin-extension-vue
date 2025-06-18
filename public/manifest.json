@@ -14,9 +14,6 @@
 		"48": "logo-48.png",
 		"128": "logo-128.png"
 	},
-	"background": {
-		"service_worker": "src/scripts/background.js"
-	},
 	"host_permissions": ["<all_urls>"],
 	"permissions": ["storage"],
 	"web_accessible_resources": [
