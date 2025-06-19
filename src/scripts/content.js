@@ -3,36 +3,43 @@ let isEnabled = true;
 let websites = [];
 let urlInput = null;
 
+const config = {
+    title: '',
+    message: '',
+};
+
 function blockPage() {
+    window.stop();
+
     document.documentElement.innerHTML = `
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <title>Blocked</title>
-            <style>
-                body {
-                    margin: 0;
-                    background-color: #ffffff;
-                    color: white;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                    font-family: sans-serif;
-                }
-                h1 {
-                    font-size: 3rem;
-                }
-                #vue-block-overlay{
-                    width: 100vw;
-                    height: 100vh;
-                }
-            </style>
-        </head>
-        <body>
-            <div id="vue-block-overlay"></div>
-        </body>
-        </html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Blocked</title>
+        <style>
+            body {
+                margin: 0;
+                background-color: #ffffff;
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                font-family: sans-serif;
+            }
+            h1 {
+                font-size: 3rem;
+            }
+            #vue-block-overlay{
+                width: 100vw;
+                height: 100vh;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="vue-block-overlay" data-config='${JSON.stringify(config)}'></div>
+    </body>
+    </html>
     `;
     
     const blockStyleLink = document.createElement('link');
@@ -109,12 +116,21 @@ function handleStorageChange(changes, areaName) {
         }
         applyBlock();
     }
+
+    if (changes.title) {
+        config.title = changes.title.newValue;
+    }
+    if (changes.message) {
+        config.message = changes.message.newValue;
+    }
 }
 
 function init() {
-    chrome.storage.local.get(['isDarkMode', 'isEnabled', 'websites'], (result) => {
+    chrome.storage.local.get(['isDarkMode', 'isEnabled', 'websites', 'title', 'message'], (result) => {
         isDarkMode = result.isDarkMode ?? true;
         isEnabled = result.isEnabled ?? true;
+        config.title = result.title ?? '';
+        config.message = result.message ?? '';
 
         try {
             websites = JSON.parse(result.websites || '[]');
@@ -139,3 +155,7 @@ window.addEventListener('beforeunload', () => {
 });
 
 init();
+
+// window.addEventListener('DOMContentLoaded', () => {
+//     init();
+// });

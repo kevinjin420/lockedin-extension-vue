@@ -1,7 +1,7 @@
 {
 	"name": "LockedIn Site Blocker",
 	"description": "Simple website blocker to improve focus and productivity",
-	"version": "1.1",
+	"version": "1.2",
 	"manifest_version": 3,
 	"options_page": "src/dashboard/dashboard.html",
 	"action": {

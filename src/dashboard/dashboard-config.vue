@@ -1,5 +1,5 @@
 <script setup>
-    import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
+    import { ref, onMounted, watch, onBeforeUnmount, nextTick } from 'vue';
     import 'bootstrap/dist/css/bootstrap.min.css';
     import 'bootstrap-icons/font/bootstrap-icons.css';
 
@@ -8,6 +8,15 @@
     const url = ref('');
     const websites = ref([]);
     const urlInput = ref(null);
+    const title = ref('');
+    const message = ref('');
+    const savedTitle = ref('');
+    const savedMessage = ref('');
+    const isDirty = ref(false);
+
+    watch([title, message], () => {
+        isDirty.value = title.value !== savedTitle.value || message.value !== savedMessage.value;
+    });
 
     function applyTheme(dark) {
         const root = document.documentElement;
@@ -35,14 +44,37 @@
         if (changes.isEnabled) {
             isEnabled.value = changes.isEnabled.newValue;
         }
+        if (changes.title) {
+            title.value = changes.title.newValue;
+            savedTitle.value = title.value;
+        }
+        if (changes.message) {
+            message.value = changes.message.newValue;
+            savedMessage.value = message.value;
+        }
+    }
+
+    function saveCustomMessage() {
+        chrome.storage.local.set({
+            title: title.value,
+            message: message.value
+        });
+        savedTitle.value = title.value;
+        savedMessage.value = message.value;
+        isDirty.value = false;
     }
 
     onMounted(() => {
-        chrome.storage.local.get(['isDarkMode', 'isEnabled', 'websites'], (result) => {
+        chrome.storage.local.get(['isDarkMode', 'isEnabled', 'websites', 'title', 'message'], (result) => {
             isDarkMode.value = result.isDarkMode ?? true;
             applyTheme(isDarkMode.value);
             isEnabled.value = result.isEnabled ?? true;
-            websites.value = JSON.parse(result.websites); // sometimes throws errors (on initial install??)
+            websites.value = JSON.parse(result.websites); // sometimes throws errors (on initial install??) or not idk
+            title.value = result.title ?? '';
+            message.value = result.message ?? '';
+            savedTitle.value = title.value;
+            savedMessage.value = message.value;
+            isDirty.value = false;
         });
         
         chrome.storage.onChanged.addListener(handleStorageChange);
@@ -103,6 +135,29 @@
                 </button>
             </div>
 
+            <div class="custom-message-wrapper mb-4 text-center">
+                <h5>Customize Block Page</h5>
+                <form @submit.prevent="saveCustomMessage" class="d-flex flex-column gap-2">
+                    <input
+                        v-model="title"
+                        type="text"
+                        class="form-control"
+                        placeholder="Block Title (e.g., Page Blocked)"
+                    />
+                    <input
+                        v-model="message"
+                        type="text"
+                        class="form-control"
+                        placeholder="Block Message (e.g., Stay Focused!)"
+                    />
+                    <div class="d-flex align-items-center justify-content-end gap-2">
+                        <span v-if="isDirty" class="text-warning small me-auto">Unsaved changes</span>
+                        <button type="submit" class="btn btn-success">
+                            Save Message
+                        </button>
+                    </div>
+                </form>
+            </div>
 
             <div class="text-center">
                 <h3>URLs to Block</h3>
@@ -120,7 +175,7 @@
                         <button type="submit" class="btn btn-primary">Add</button>
                     </form>
 
-                    <ul class="mt-3 list-group">
+                    <ul class="mt-2 list-group">
                         <li
                         v-for="(site, index) in websites"
                         :key="index"
@@ -228,6 +283,10 @@
 
 .custom-switch {
     transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.custom-message-wrapper input {
+    max-width: 100%;
 }
 
 </style>
