@@ -4,14 +4,14 @@ let websites = [];
 let urlInput = null;
 
 const config = {
-    title: '',
-    message: '',
+	title: "",
+	message: "",
 };
 
 function blockPage() {
-    window.stop();
+	window.stop();
 
-    document.documentElement.innerHTML = `
+	document.documentElement.innerHTML = `
     <html lang="en">
     <head>
         <meta charset="UTF-8">
@@ -41,121 +41,138 @@ function blockPage() {
     </body>
     </html>
     `;
-    
-    const blockStyleLink = document.createElement('link');
-    blockStyleLink.rel = 'stylesheet';
-    blockStyleLink.type = 'text/css';
-    blockStyleLink.href = chrome.runtime.getURL('src/block/block.css');
-    document.head.appendChild(blockStyleLink);
-    
-    const blockScript = document.createElement('script');
-    blockScript.src = chrome.runtime.getURL('src/block/block.js');
-    document.body.appendChild(blockScript);
-    applyTheme(isDarkMode);
+
+	const blockStyleLink = document.createElement("link");
+	blockStyleLink.rel = "stylesheet";
+	blockStyleLink.type = "text/css";
+	blockStyleLink.href = chrome.runtime.getURL("src/block/block.css");
+	document.head.appendChild(blockStyleLink);
+
+	const blockScript = document.createElement("script");
+	blockScript.src = chrome.runtime.getURL("src/block/block.js");
+	document.body.appendChild(blockScript);
+	applyTheme(isDarkMode);
 }
 
 function unblockPage() {
-    const overlay = document.getElementById('vue-block-overlay');
-    if (!overlay) return;
+	const overlay = document.getElementById("vue-block-overlay");
+	if (!overlay) return;
 
-    const blockCssHref = chrome.runtime.getURL('src/block/block.css');
-    document.querySelectorAll(`link[href="${blockCssHref}"]`).forEach(link => link.remove());
+	const blockCssHref = chrome.runtime.getURL("src/block/block.css");
+	document
+		.querySelectorAll(`link[href="${blockCssHref}"]`)
+		.forEach((link) => link.remove());
 
-    const blockScriptSrc = chrome.runtime.getURL('src/block/block.js');
-    document.querySelectorAll(`script[src="${blockScriptSrc}"]`).forEach(script => script.remove());
+	const blockScriptSrc = chrome.runtime.getURL("src/block/block.js");
+	document
+		.querySelectorAll(`script[src="${blockScriptSrc}"]`)
+		.forEach((script) => script.remove());
 
-    overlay.remove();
+	overlay.remove();
 
-    document.documentElement.removeAttribute('data-bs-theme');
+	document.documentElement.removeAttribute("data-bs-theme");
 
-    location.reload();
+	location.reload();
 }
 
 function applyTheme(dark) {
-    const root = document.documentElement;
-    root.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+	const root = document.documentElement;
+	root.setAttribute("data-bs-theme", dark ? "dark" : "light");
 }
 
 function shouldBlock(url) {
-    return websites.some(entry => {
-        try {
-            const entryUrl = new URL(entry);
-            return url === entry || url.startsWith(entry) || location.origin === entryUrl.origin;
-        } catch {
-            return url.includes(entry);
-        }
-    });
+	return websites.some((entry) => {
+		try {
+			const entryUrl = new URL(entry);
+			return (
+				url === entry ||
+				url.startsWith(entry) ||
+				location.origin === entryUrl.origin
+			);
+		} catch {
+			return url.includes(entry);
+		}
+	});
 }
 
 function applyBlock() {
-    if (isEnabled && shouldBlock(location.href)) {
-        blockPage();
-    } else {
-        unblockPage();
-    }
+	if (isEnabled && shouldBlock(location.href)) {
+		blockPage();
+	} else {
+		unblockPage();
+	}
 }
 
 function handleStorageChange(changes, areaName) {
-    if (areaName !== 'local') return;
+	if (areaName !== "local") return;
 
-    if (changes.isDarkMode) {
-        isDarkMode = changes.isDarkMode.newValue;
-        applyTheme(isDarkMode);
-    }
+	if (changes.isEnabled) {
+		isEnabled = changes.isEnabled.newValue;
+		applyBlock();
+	}
 
-    if (changes.isEnabled) {
-        isEnabled = changes.isEnabled.newValue;
-        applyBlock();
-    }
+	if (changes.isDarkMode) {
+		isDarkMode = changes.isDarkMode.newValue;
+		if (document.getElementById("vue-block-overlay")) {
+			applyTheme(isDarkMode);
+			console.log("theme applied on storage change");
+		}
+	}
 
-    if (changes.websites) {
-        try {
-            websites = JSON.parse(changes.websites.newValue || '[]');
-        } catch {
-            websites = [];
-        }
-        applyBlock();
-    }
+	if (changes.websites) {
+		try {
+			websites = JSON.parse(changes.websites.newValue || "[]");
+		} catch {
+			websites = [];
+		}
+		applyBlock();
+	}
 
-    if (changes.title) {
-        config.title = changes.title.newValue;
-    }
-    if (changes.message) {
-        config.message = changes.message.newValue;
-    }
+	if (changes.title) {
+		config.title = changes.title.newValue;
+	}
+	if (changes.message) {
+		config.message = changes.message.newValue;
+	}
 }
 
 function init() {
-    chrome.storage.local.get(['isDarkMode', 'isEnabled', 'websites', 'title', 'message'], (result) => {
-        isDarkMode = result.isDarkMode ?? true;
-        isEnabled = result.isEnabled ?? true;
-        config.title = result.title ?? '';
-        config.message = result.message ?? '';
+	chrome.storage.local.get(
+		["isDarkMode", "isEnabled", "websites", "title", "message"],
+		(result) => {
+			isDarkMode = result.isDarkMode ?? true;
+			isEnabled = result.isEnabled ?? true;
+			config.title = result.title ?? "";
+			config.message = result.message ?? "";
 
-        try {
-            websites = JSON.parse(result.websites || '[]');
-        } catch {
-            websites = [];
-        }
+			try {
+				websites = JSON.parse(result.websites || "[]");
+			} catch {
+				websites = [];
+			}
 
-        applyTheme(isDarkMode);
+			if (urlInput) {
+				urlInput.focus();
+			}
 
-        if (urlInput) {
-            urlInput.focus();
-        }
+			applyBlock();
+		}
+	);
 
-        applyBlock();
-    });
-
-    chrome.storage.onChanged.addListener(handleStorageChange);
+	chrome.storage.onChanged.addListener(handleStorageChange);
 }
 
-window.addEventListener('beforeunload', () => {
-    chrome.storage.onChanged.removeListener(handleStorageChange);
+window.addEventListener("beforeunload", () => {
+	chrome.storage.onChanged.removeListener(handleStorageChange);
 });
 
 init();
 
-// window.addEventListener('DOMContentLoaded', () => {
-//     init();
-// });
+
+// function checkAttr(){
+//     if (document.documentElement.hasAttribute("data-bs-theme")) {
+//         console.log("Theme is set to:", document.documentElement.getAttribute("data-bs-theme"));
+//     } else {
+//         console.log("No data-bs-theme attribute set.");
+//     }
+// };
